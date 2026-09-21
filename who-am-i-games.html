@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>من أنا؟ - ألعاب تفاعلية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;600;700;800&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    box-sizing:border-box;
+    --cream:#FFF7E6;
+    --panel:#FFFFFF;
+    --ink:#3A2E59;
+    --ink-soft:#6B5E8A;
+    --yellow:#FFC94A;
+    --yellow-deep:#F2A31A;
+    --pink:#FF6F91;
+    --pink-deep:#E14C72;
+    --teal:#33C2BD;
+    --teal-deep:#1F9E99;
+    --purple:#8C6FE6;
+    --purple-deep:#6E4FD1;
+    --orange:#FF9645;
+    --orange-deep:#E5761E;
+    --red:#FF5C5C;
+    --red-deep:#DE3A3A;
+    --green:#4FBE85;
+    --green-deep:#2E9C64;
+    --line:#EFE3C8;
+    --shadow: 0 10px 24px rgba(58,46,89,.14);
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  :root:not([data-theme="light"]){ }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#211A33; --panel:#2C2447; --ink:#F4EEFF; --ink-soft:#C7BBEA; --line:#453A6B;
+      --shadow: 0 10px 26px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#211A33; --panel:#2C2447; --ink:#F4EEFF; --ink-soft:#C7BBEA; --line:#453A6B;
+    --shadow: 0 10px 26px rgba(0,0,0,.45);
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 8% 10%, rgba(255,201,74,.35), transparent 40%),
+      radial-gradient(circle at 92% 18%, rgba(255,111,145,.25), transparent 42%),
+      var(--cream);
+    color:var(--ink);
+    font-family:'Cairo', sans-serif;
+    min-height:100%;
+    -webkit-tap-highlight-color:transparent;
+  }
+  h1,h2,h3, .display{
+    font-family:'Baloo Bhaijaan 2','Cairo',sans-serif;
+  }
+  button{font-family:inherit;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 18px 48px;}
+
+  /* header */
+  .appbar{
+    position:sticky; top:0; z-index:20;
+    padding-top:calc(14px + env(safe-area-inset-top,0px));
+    padding-bottom:14px;
+    background:linear-gradient(180deg, var(--cream) 78%, transparent);
+    backdrop-filter: blur(2px);
+  }
+  .appbar-inner{
+    max-width:920px;margin:0 auto;padding:0 18px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-emoji{font-size:34px;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.15));}
+  .brand-text h1{margin:0;font-size:22px;font-weight:800;color:var(--ink);}
+  .brand-text p{margin:0;font-size:12.5px;color:var(--ink-soft);font-weight:600;}
+  .stars{
+    display:flex;align-items:center;gap:6px;background:var(--panel);
+    border:2px solid var(--yellow);color:var(--ink);
+    padding:7px 14px;border-radius:999px;font-weight:800;font-size:15px;
+    box-shadow:var(--shadow);
+  }
+  .back-btn{
+    display:none;align-items:center;gap:6px;background:var(--panel);
+    border:2px solid var(--line);color:var(--ink);font-weight:700;font-size:14px;
+    padding:8px 14px;border-radius:999px;cursor:pointer;box-shadow:var(--shadow);
+  }
+  .back-btn:hover{border-color:var(--purple);}
+  .screen.active .back-btn{display:inline-flex;}
+
+  /* hub */
+  .hub-hero{text-align:center;padding:6px 0 22px;}
+  .hub-hero h2{font-size:26px;margin:6px 0 4px;color:var(--ink);}
+  .hub-hero p{margin:0;color:var(--ink-soft);font-weight:600;font-size:14.5px;}
+  .grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:16px;
+  }
+  @media (min-width:640px){ .grid{grid-template-columns:repeat(3,1fr);} }
+
+  .card{
+    position:relative; border:none; cursor:pointer; text-align:right;
+    background:var(--panel); border-radius:24px; padding:18px 16px 16px;
+    box-shadow:var(--shadow); color:var(--ink);
+    display:flex; flex-direction:column; gap:10px; min-height:150px;
+    transition:transform .15s ease;
+  }
+  .card:active{transform:scale(.97);}
+  .card:focus-visible{outline:3px solid var(--purple); outline-offset:3px;}
+  .card .badge{
+    width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+    font-size:26px; box-shadow: inset 0 -3px 0 rgba(0,0,0,.08);
+  }
+  .card h3{margin:0;font-size:16px;}
+  .card p{margin:0;font-size:12px;color:var(--ink-soft);font-weight:600;line-height:1.5;}
+  .card .stars-earned{position:absolute;top:12px;left:14px;font-size:13px;font-weight:800;color:var(--yellow-deep);}
+
+  .c1 .badge{background:#FFE1E8;color:var(--pink-deep);}
+  .c2 .badge{background:#DFF7EF;color:var(--green-deep);}
+  .c3 .badge{background:#E4F1FF;color:var(--teal-deep);}
+  .c4 .badge{background:#FFE9D6;color:var(--orange-deep);}
+  .c5 .badge{background:#FFE1E1;color:var(--red-deep);}
+  .c6 .badge{background:#ECE3FF;color:var(--purple-deep);}
+
+  /* screens */
+  .screen{display:none;}
+  .screen.active{display:block;}
+  .game-panel{
+    background:var(--panel); border-radius:26px; padding:22px 18px 26px; box-shadow:var(--shadow);
+    margin-top:6px;
+  }
+  .game-title{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+  .game-title .emoji{font-size:28px;}
+  .game-title h2{margin:0;font-size:19px;}
+  .progress-line{font-size:13px;color:var(--ink-soft);font-weight:700;margin:0 0 14px;}
+  .prompt{
+    text-align:center;font-size:17px;font-weight:800;margin:6px 0 18px;color:var(--ink);
+  }
+
+  /* matching game */
+  .match-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .tile{
+    border:2px solid var(--line); background:var(--cream); border-radius:18px;
+    padding:14px 8px; text-align:center; cursor:pointer; font-weight:700; font-size:13px;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    transition:transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .tile .emoji{font-size:32px;}
+  .tile:hover{transform:translateY(-2px);}
+  .tile.selected{border-color:var(--purple); background:#ECE3FF;}
+  .tile.matched{border-color:var(--green); background:#DFF7EF; opacity:.7; cursor:default;}
+  .tile.wrong{animation:shake .35s ease;}
+  .tile:disabled, .tile.matched{pointer-events:none;}
+
+  @keyframes shake{
+    10%,90%{transform:translateX(-2px);}
+    20%,80%{transform:translateX(4px);}
+    30%,50%,70%{transform:translateX(-8px);}
+    40%,60%{transform:translateX(8px);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .tile.wrong{animation:none;}
+  }
+
+  /* letters / quiz */
+  .letter-big{
+    width:110px;height:110px;margin:0 auto 16px;border-radius:26px;
+    background:linear-gradient(160deg, var(--teal), var(--teal-deep));
+    color:#fff; display:flex;align-items:center;justify-content:center;
+    font-size:56px; font-weight:800; box-shadow:var(--shadow);
+  }
+  .options-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .opt{
+    border:2px solid var(--line); background:var(--cream); border-radius:18px;
+    padding:14px 6px; text-align:center; cursor:pointer; font-weight:700; font-size:13px;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+  }
+  .opt .emoji{font-size:34px;}
+  .opt.correct{border-color:var(--green); background:#DFF7EF;}
+  .opt.incorrect{border-color:var(--red); background:#FFE1E1; animation:shake .35s ease;}
+
+  /* numbers */
+  .objects-row{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:8px; font-size:34px;
+    background:var(--cream); border:2px dashed var(--line); border-radius:20px; padding:18px; margin-bottom:18px;
+  }
+  .num-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .num-btn{
+    border:2px solid var(--line); background:var(--cream); border-radius:16px;
+    padding:14px 0; font-size:22px; font-weight:800; cursor:pointer; color:var(--ink);
+  }
+  .num-btn.correct{border-color:var(--green); background:#DFF7EF;}
+  .num-btn.incorrect{border-color:var(--red); background:#FFE1E1; animation:shake .35s ease;}
+
+  /* food sorting */
+  .food-stage{text-align:center;margin-bottom:18px;}
+  .food-emoji{font-size:78px;display:block;margin-bottom:6px;}
+  .food-name{font-weight:800;font-size:16px;color:var(--ink-soft);}
+  .choice-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .choice-btn{
+    border:none;border-radius:18px;padding:18px 8px;font-weight:800;font-size:15px;color:#fff;cursor:pointer;
+    box-shadow:var(--shadow);
+  }
+  .choice-btn.healthy{background:linear-gradient(160deg, var(--green), var(--green-deep));}
+  .choice-btn.unhealthy{background:linear-gradient(160deg, var(--red), var(--red-deep));}
+  .choice-btn:active{transform:scale(.97);}
+
+  /* hazard */
+  .hazard-meta{display:flex;justify-content:space-between;margin-bottom:12px;font-weight:800;font-size:13.5px;color:var(--ink-soft);}
+  .hazard-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .hz-tile{
+    border:2px solid var(--line); background:var(--cream); border-radius:18px;
+    padding:14px 4px; text-align:center; font-size:32px; cursor:pointer;
+  }
+  .hz-tile.found{border-color:var(--red); background:#FFE1E1;}
+  .hz-tile.oops{animation:shake .35s ease;}
+  .hz-tile.disabled{pointer-events:none;opacity:.55;}
+
+  /* pattern */
+  .pattern-row{
+    display:flex; justify-content:center; gap:10px; font-size:34px; margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  .pattern-row span{
+    width:52px;height:52px;border-radius:14px;background:var(--cream);border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .pattern-row span.blank{border-style:dashed;border-color:var(--purple);color:var(--purple);font-weight:800;font-size:22px;}
+
+  /* success modal */
+  .modal-back{
+    position:fixed;inset:0;background:rgba(58,46,89,.55);display:none;align-items:center;justify-content:center;
+    z-index:50;padding:20px;
+  }
+  .modal-back.show{display:flex;}
+  .modal{
+    background:var(--panel);border-radius:26px;padding:28px 22px;max-width:340px;width:100%;text-align:center;
+    box-shadow:var(--shadow);
+  }
+  .modal .big-emoji{font-size:56px;display:block;margin-bottom:8px;}
+  .modal h3{margin:0 0 6px;font-size:20px;}
+  .modal p{margin:0 0 18px;color:var(--ink-soft);font-weight:700;font-size:14px;}
+  .modal-actions{display:flex;gap:10px;}
+  .modal-actions button{
+    flex:1;border:none;border-radius:14px;padding:12px 8px;font-weight:800;font-size:14px;cursor:pointer;
+  }
+  .btn-again{background:var(--yellow);color:#5a3d00;}
+  .btn-home{background:var(--purple);color:#fff;}
+
+  footer{text-align:center;color:var(--ink-soft);font-size:12px;font-weight:600;margin-top:24px;}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="appbar-inner">
+    <button class="back-btn" onclick="goHome()">🏠 الرئيسية</button>
+    <div class="brand" style="margin-inline-start:auto;">
+      <div class="brand-text" style="text-align:left;">
+        <h1 style="text-align:right;">من أنا؟</h1>
+        <p style="text-align:right;">ألعاب تفاعلية لرياض الأطفال</p>
+      </div>
+      <div class="brand-emoji">🙋</div>
+    </div>
+    <div class="stars">⭐ <span id="starsCount">0</span></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- HOME -->
+  <section class="screen active" id="screen-home">
+    <div class="hub-hero">
+      <h2>اختر لعبة وابدأ المرح!</h2>
+      <p>ألعاب مبنية على أنشطة الوحدة الثانية: جسمي، حواسي، الحروف والأرقام</p>
+    </div>
+    <div class="grid">
+      <button class="card c1" onclick="openGame('senses')">
+        <span class="stars-earned" id="stars-senses"></span>
+        <div class="badge">🖐️</div>
+        <h3>حواسي الخمس</h3>
+        <p>صِل كل عضو بالحاسة التي يقوم بها</p>
+      </button>
+      <button class="card c2" onclick="openGame('letters')">
+        <span class="stars-earned" id="stars-letters"></span>
+        <div class="badge">🔤</div>
+        <h3>حروف الوحدة</h3>
+        <p>اكتشف حروف ي، ب، م، ف في الكلمات</p>
+      </button>
+      <button class="card c3" onclick="openGame('numbers')">
+        <span class="stars-earned" id="stars-numbers"></span>
+        <div class="badge">🔢</div>
+        <h3>أعدّ معي</h3>
+        <p>عدّ العناصر واختر الرقم الصحيح</p>
+      </button>
+      <button class="card c4" onclick="openGame('food')">
+        <span class="stars-earned" id="stars-food"></span>
+        <div class="badge">🍎</div>
+        <h3>غذائي الصحي</h3>
+        <p>صنّف الطعام: صحي أم غير صحي؟</p>
+      </button>
+      <button class="card c5" onclick="openGame('hazard')">
+        <span class="stars-earned" id="stars-hazard"></span>
+        <div class="badge">⚠️</div>
+        <h3>احذر الخطر</h3>
+        <p>اكتشف الأدوات الخطرة في المنزل</p>
+      </button>
+      <button class="card c6" onclick="openGame('pattern')">
+        <span class="stars-earned" id="stars-pattern"></span>
+        <div class="badge">🧩</div>
+        <h3>أكمل النمط</h3>
+        <p>لاحظ التكرار وأكمل الشكل الناقص</p>
+      </button>
+    </div>
+  </section>
+
+  <!-- SENSES -->
+  <section class="screen" id="screen-senses">
+    <div class="game-panel">
+      <div class="game-title"><span class="emoji">🖐️</span><h2>حواسي الخمس</h2></div>
+      <p class="progress-line" id="senses-progress"></p>
+      <p class="prompt">صِل كل عضو بما يفعله</p>
+      <div class="match-cols">
+        <div id="senses-left"></div>
+        <div id="senses-right"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LETTERS -->
+  <section class="screen" id="screen-letters">
+    <div class="game-panel">
+      <div class="game-title"><span class="emoji">🔤</span><h2>حروف الوحدة</h2></div>
+      <p class="progress-line" id="letters-progress"></p>
+      <div class="letter-big" id="letters-bigletter">ي</div>
+      <p class="prompt" id="letters-prompt">أي كلمة تحتوي على هذا الحرف؟</p>
+      <div class="options-row" id="letters-options"></div>
+    </div>
+  </section>
+
+  <!-- NUMBERS -->
+  <section class="screen" id="screen-numbers">
+    <div class="game-panel">
+      <div class="game-title"><span class="emoji">🔢</span><h2>أعدّ معي</h2></div>
+      <p class="progress-line" id="numbers-progress"></p>
+      <p class="prompt">كم عدد العناصر؟</p>
+      <div class="objects-row" id="numbers-objects"></div>
+      <div class="num-row" id="numbers-options"></div>
+    </div>
+  </section>
+
+  <!-- FOOD -->
+  <section class="screen" id="screen-food">
+    <div class="game-panel">
+      <div class="game-title"><span class="emoji">🍎</span><h2>غذائي الصحي</h2></div>
+      <p class="progress-line" id="food-progress"></p>
+      <div class="food-stage">
+        <span class="food-emoji" id="food-emoji">🍎</span>
+        <span class="food-name" id="food-name">تفاحة</span>
+      </div>
+      <div class="choice-row">
+        <button class="choice-btn healthy" onclick="answerFood(true)">🟢 صحي</button>
+        <button class="choice-btn unhealthy" onclick="answerFood(false)">🔴 غير صحي</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- HAZARD -->
+  <section class="screen" id="screen-hazard">
+    <div class="game-panel">
+      <div class="game-title"><span class="emoji">⚠️</span><h2>احذر الخطر</h2></div>
+      <p class="prompt">انقر فقط على الأدوات الخطرة</p>
+      <div class="hazard-meta">
+        <span id="hazard-found">تم العثور: 0 / 4</span>
+        <span id="hazard-lives">❤️❤️❤️</span>
+      </div>
+      <div class="hazard-grid" id="hazard-grid"></div>
+    </div>
+  </section>
+
+  <!-- PATTERN -->
+  <section class="screen" id="screen-pattern">
+    <div class="game-panel">
+      <div class="game-title"><span class="emoji">🧩</span><h2>أكمل النمط</h2></div>
+      <p class="progress-line" id="pattern-progress"></p>
+      <p class="prompt">ما الشكل التالي في النمط؟</p>
+      <div class="pattern-row" id="pattern-row"></div>
+      <div class="options-row" id="pattern-options"></div>
+    </div>
+  </section>
+
+  <footer>صُمّمت هذه الألعاب استناداً إلى أنشطة الوحدة الثانية «من أنا؟» لمنهاج رياض الأطفال التطوري</footer>
+</div>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal">
+    <span class="big-emoji">🎉</span>
+    <h3>أحسنت!</h3>
+    <p id="modalText">أكملت اللعبة بنجاح</p>
+    <div class="modal-actions">
+      <button class="btn-again" id="modalAgainBtn">العب مرة أخرى</button>
+      <button class="btn-home" onclick="closeModal();goHome()">الرئيسية</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- shared helpers ---------- */
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function pick(arr,n){ return shuffle(arr).slice(0,n); }
+
+let stars = 0;
+let gameStars = {};
+try{
+  const saved = JSON.parse(localStorage.getItem('whoami_progress')||'{}');
+  stars = saved.stars || 0;
+  gameStars = saved.gameStars || {};
+}catch(e){}
+
+function saveProgress(){
+  try{ localStorage.setItem('whoami_progress', JSON.stringify({stars, gameStars})); }catch(e){}
+}
+function renderStarsUI(){
+  document.getElementById('starsCount').textContent = stars;
+  ['senses','letters','numbers','food','hazard','pattern'].forEach(k=>{
+    const el = document.getElementById('stars-'+k);
+    if(el) el.textContent = gameStars[k] ? '⭐' : '';
+  });
+}
+function awardStar(gameKey){
+  if(!gameStars[gameKey]){
+    gameStars[gameKey] = true;
+    stars += 1;
+    saveProgress();
+  }
+  renderStarsUI();
+}
+renderStarsUI();
+
+function goHome(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-home').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function openGame(key){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+key).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(key==='senses') initSenses();
+  if(key==='letters') initLetters();
+  if(key==='numbers') initNumbers();
+  if(key==='food') initFood();
+  if(key==='hazard') initHazard();
+  if(key==='pattern') initPattern();
+}
+function showModal(text, onAgain){
+  document.getElementById('modalText').textContent = text;
+  document.getElementById('modalBack').classList.add('show');
+  const btn = document.getElementById('modalAgainBtn');
+  btn.onclick = ()=>{ closeModal(); onAgain(); };
+}
+function closeModal(){ document.getElementById('modalBack').classList.remove('show'); }
+
+/* ---------- 1. senses matching ---------- */
+const sensesData = [
+  {organ:'✋', organName:'يد', action:'🐱', actionName:'يلمس القطة'},
+  {organ:'👅', organName:'لسان', action:'🍦', actionName:'يتذوق المثلجات'},
+  {organ:'👁️', organName:'عين', action:'📖', actionName:'يقرأ الكتاب'},
+  {organ:'👂', organName:'أذن', action:'🎵', actionName:'يسمع الصوت'},
+  {organ:'👃', organName:'أنف', action:'🌸', actionName:'يشم الزهرة'},
+];
+let senses = { selected:null, matched:0 };
+function initSenses(){
+  senses = { selected:null, matched:0 };
+  const left = shuffle(sensesData);
+  const right = shuffle(sensesData);
+  const leftEl = document.getElementById('senses-left');
+  const rightEl = document.getElementById('senses-right');
+  leftEl.innerHTML=''; rightEl.innerHTML='';
+  left.forEach(item=>{
+    const b = document.createElement('button');
+    b.className='tile'; b.dataset.id=item.organName;
+    b.innerHTML = `<span class="emoji">${item.organ}</span><span>${item.organName}</span>`;
+    b.onclick=()=>selectSenseTile(b,'organ',item);
+    leftEl.appendChild(b);
+  });
+  right.forEach(item=>{
+    const b = document.createElement('button');
+    b.className='tile'; b.dataset.id=item.organName;
+    b.innerHTML = `<span class="emoji">${item.action}</span><span>${item.actionName}</span>`;
+    b.onclick=()=>selectSenseTile(b,'action',item);
+    rightEl.appendChild(b);
+  });
+  updateSensesProgress();
+}
+function updateSensesProgress(){
+  document.getElementById('senses-progress').textContent = `تم المطابقة: ${senses.matched} / ${sensesData.length}`;
+}
+function selectSenseTile(btn, side, item){
+  if(btn.classList.contains('matched')) return;
+  if(!senses.selected){
+    document.querySelectorAll('#screen-senses .tile.selected').forEach(t=>t.classList.remove('selected'));
+    btn.classList.add('selected');
+    senses.selected = {btn, side, item};
+    return;
+  }
+  if(senses.selected.side === side){
+    senses.selected.btn.classList.remove('selected');
+    btn.classList.add('selected');
+    senses.selected = {btn, side, item};
+    return;
+  }
+  const isMatch = senses.selected.item.organName === item.organName;
+  if(isMatch){
+    senses.selected.btn.classList.remove('selected');
+    senses.selected.btn.classList.add('matched');
+    btn.classList.add('matched');
+    senses.matched++;
+    senses.selected = null;
+    updateSensesProgress();
+    if(senses.matched === sensesData.length){
+      awardStar('senses');
+      setTimeout(()=>showModal('صِلت كل الحواس بشكل صحيح! أحسنت 🖐️👀👂👃👅', initSenses), 400);
+    }
+  } else {
+    btn.classList.add('wrong');
+    senses.selected.btn.classList.add('wrong');
+    setTimeout(()=>{
+      btn.classList.remove('wrong');
+      senses.selected.btn.classList.remove('wrong','selected');
+      senses.selected = null;
+    }, 400);
+  }
+}
+
+/* ---------- 2. letters quiz ---------- */
+const lettersData = [
+  {letter:'ي', options:[
+    {emoji:'🧸', word:'دمية', correct:true},
+    {emoji:'☀️', word:'شمس', correct:false},
+    {emoji:'✏️', word:'قلم', correct:false},
+  ]},
+  {letter:'ب', options:[
+    {emoji:'🍊', word:'برتقالة', correct:true},
+    {emoji:'🐱', word:'قطة', correct:false},
+    {emoji:'🌙', word:'قمر', correct:false},
+  ]},
+  {letter:'م', options:[
+    {emoji:'🍋', word:'ليمون', correct:true},
+    {emoji:'📕', word:'كتاب', correct:false},
+    {emoji:'⭐', word:'نجمة', correct:false},
+  ]},
+  {letter:'ف', options:[
+    {emoji:'🐘', word:'فيل', correct:true},
+    {emoji:'🐻', word:'دب', correct:false},
+    {emoji:'🌳', word:'شجرة', correct:false},
+  ]},
+];
+let letters = { idx:0, correctCount:0, locked:false };
+function initLetters(){
+  letters = { idx:0, correctCount:0, locked:false };
+  renderLettersRound();
+}
+function renderLettersRound(){
+  const round = lettersData[letters.idx];
+  document.getElementById('letters-progress').textContent = `السؤال ${letters.idx+1} من ${lettersData.length}`;
+  document.getElementById('letters-bigletter').textContent = round.letter;
+  const opts = shuffle(round.options);
+  const wrap = document.getElementById('letters-options');
+  wrap.innerHTML='';
+  letters.locked = false;
+  opts.forEach(o=>{
+    const b = document.createElement('button');
+    b.className='opt';
+    b.innerHTML = `<span class="emoji">${o.emoji}</span><span>${o.word}</span>`;
+    b.onclick = ()=>answerLetters(b, o);
+    wrap.appendChild(b);
+  });
+}
+function answerLetters(btn, o){
+  if(letters.locked) return;
+  if(o.correct){
+    letters.locked = true;
+    btn.classList.add('correct');
+    letters.correctCount++;
+    setTimeout(()=>{
+      if(letters.idx < lettersData.length-1){
+        letters.idx++;
+        renderLettersRound();
+      } else {
+        awardStar('letters');
+        showModal(`أجبت بشكل صحيح على ${letters.correctCount} من ${lettersData.length}! رائع 🔤`, initLetters);
+      }
+    }, 500);
+  } else {
+    btn.classList.add('incorrect');
+    setTimeout(()=>btn.classList.remove('incorrect'), 400);
+  }
+}
+
+/* ---------- 3. numbers counting ---------- */
+const numbersData = [
+  {emoji:'🪥', count:2},
+  {emoji:'🦆', count:3},
+  {emoji:'🧴', count:4},
+  {emoji:'🐔', count:5},
+];
+let numbers = { idx:0, correctCount:0, locked:false };
+function initNumbers(){
+  numbers = { idx:0, correctCount:0, locked:false };
+  renderNumbersRound();
+}
+function renderNumbersRound(){
+  const round = numbersData[numbers.idx];
+  document.getElementById('numbers-progress').textContent = `السؤال ${numbers.idx+1} من ${numbersData.length}`;
+  document.getElementById('numbers-objects').innerHTML = round.emoji.repeat(round.count).split('').length
+    ? Array(round.count).fill(`<span>${round.emoji}</span>`).join('')
+    : '';
+  const others = [2,3,4,5].filter(n=>n!==round.count);
+  const choices = shuffle([round.count, ...pick(others,2)]);
+  const wrap = document.getElementById('numbers-options');
+  wrap.innerHTML='';
+  numbers.locked = false;
+  choices.forEach(n=>{
+    const b = document.createElement('button');
+    b.className='num-btn';
+    b.textContent = n;
+    b.onclick = ()=>answerNumbers(b, n===round.count);
+    wrap.appendChild(b);
+  });
+}
+function answerNumbers(btn, isCorrect){
+  if(numbers.locked) return;
+  if(isCorrect){
+    numbers.locked = true;
+    btn.classList.add('correct');
+    numbers.correctCount++;
+    setTimeout(()=>{
+      if(numbers.idx < numbersData.length-1){
+        numbers.idx++;
+        renderNumbersRound();
+      } else {
+        awardStar('numbers');
+        showModal(`عددت بشكل صحيح ${numbers.correctCount} من ${numbersData.length}! أحسنت 🔢`, initNumbers);
+      }
+    }, 500);
+  } else {
+    btn.classList.add('incorrect');
+    setTimeout(()=>btn.classList.remove('incorrect'), 400);
+  }
+}
+
+/* ---------- 4. healthy food ---------- */
+const foodData = [
+  {emoji:'🍎', name:'تفاحة', healthy:true},
+  {emoji:'🍊', name:'برتقالة', healthy:true},
+  {emoji:'🍇', name:'عنب', healthy:true},
+  {emoji:'🥛', name:'حليب', healthy:true},
+  {emoji:'🍌', name:'موز', healthy:true},
+  {emoji:'🥕', name:'جزر', healthy:true},
+  {emoji:'🍰', name:'كعكة', healthy:false},
+  {emoji:'🥤', name:'مشروب غازي', healthy:false},
+  {emoji:'🍟', name:'رقائق مقلية', healthy:false},
+];
+let food = { order:[], idx:0, correctCount:0 };
+function initFood(){
+  food = { order:shuffle(foodData), idx:0, correctCount:0 };
+  renderFoodRound();
+}
+function renderFoodRound(){
+  const item = food.order[food.idx];
+  document.getElementById('food-progress').textContent = `الطعام ${food.idx+1} من ${food.order.length}`;
+  document.getElementById('food-emoji').textContent = item.emoji;
+  document.getElementById('food-name').textContent = item.name;
+}
+function answerFood(saidHealthy){
+  const item = food.order[food.idx];
+  if(saidHealthy === item.healthy) food.correctCount++;
+  if(food.idx < food.order.length-1){
+    food.idx++;
+    renderFoodRound();
+  } else {
+    if(food.correctCount >= Math.ceil(food.order.length*0.7)) awardStar('food');
+    showModal(`صنّفت بشكل صحيح ${food.correctCount} من ${food.order.length} صنف طعام 🍎`, initFood);
+  }
+}
+
+/* ---------- 5. hazard spotting ---------- */
+const hazardItems = [
+  {emoji:'🔪', danger:true}, {emoji:'🥄', danger:false},
+  {emoji:'🔥', danger:true}, {emoji:'🧸', danger:false},
+  {emoji:'🧪', danger:true}, {emoji:'📕', danger:false},
+  {emoji:'🔌', danger:true}, {emoji:'🍎', danger:false},
+];
+let hazard = { found:0, lives:3, total:0, over:false };
+function initHazard(){
+  hazard = { found:0, lives:3, total:hazardItems.filter(i=>i.danger).length, over:false };
+  const grid = document.getElementById('hazard-grid');
+  grid.innerHTML='';
+  shuffle(hazardItems).forEach(item=>{
+    const b = document.createElement('button');
+    b.className='hz-tile';
+    b.textContent = item.emoji;
+    b.onclick = ()=>tapHazard(b, item);
+    grid.appendChild(b);
+  });
+  updateHazardMeta();
+}
+function updateHazardMeta(){
+  document.getElementById('hazard-found').textContent = `تم العثور: ${hazard.found} / ${hazard.total}`;
+  document.getElementById('hazard-lives').textContent = '❤️'.repeat(hazard.lives) || '💔';
+}
+function tapHazard(btn, item){
+  if(hazard.over || btn.classList.contains('disabled')) return;
+  if(item.danger){
+    btn.classList.add('found','disabled');
+    hazard.found++;
+    updateHazardMeta();
+    if(hazard.found === hazard.total){
+      hazard.over = true;
+      awardStar('hazard');
+      setTimeout(()=>showModal('اكتشفت كل الأدوات الخطرة! انتبه دائماً منها ⚠️', initHazard), 400);
+    }
+  } else {
+    btn.classList.add('oops');
+    hazard.lives = Math.max(0, hazard.lives-1);
+    updateHazardMeta();
+    setTimeout(()=>btn.classList.remove('oops'), 400);
+    if(hazard.lives === 0 && !hazard.over){
+      hazard.over = true;
+      setTimeout(()=>showModal(`لنحاول مرة أخرى بحذر أكبر! وجدت ${hazard.found} من ${hazard.total}`, initHazard), 400);
+    }
+  }
+}
+
+/* ---------- 6. pattern completion ---------- */
+const patternData = [
+  {seq:['🟥','🟨','🟥','🟨','🟥'], answer:'🟨', options:['🟨','🟦','🟩']},
+  {seq:['🍎','🍌','🍎','🍌','🍎'], answer:'🍌', options:['🍌','🍇','🍊']},
+  {seq:['⭐','⭐','🌙','⭐','⭐'], answer:'🌙', options:['🌙','☀️','⭐']},
+];
+let pattern = { idx:0, correctCount:0, locked:false };
+function initPattern(){
+  pattern = { idx:0, correctCount:0, locked:false };
+  renderPatternRound();
+}
+function renderPatternRound(){
+  const round = patternData[pattern.idx];
+  document.getElementById('pattern-progress').textContent = `النمط ${pattern.idx+1} من ${patternData.length}`;
+  const row = document.getElementById('pattern-row');
+  row.innerHTML = round.seq.map(e=>`<span>${e}</span>`).join('') + `<span class="blank">؟</span>`;
+  const wrap = document.getElementById('pattern-options');
+  wrap.innerHTML='';
+  pattern.locked = false;
+  shuffle(round.options).forEach(o=>{
+    const b = document.createElement('button');
+    b.className='opt';
+    b.innerHTML = `<span class="emoji">${o}</span>`;
+    b.onclick = ()=>answerPattern(b, o===round.answer);
+    wrap.appendChild(b);
+  });
+}
+function answerPattern(btn, isCorrect){
+  if(pattern.locked) return;
+  if(isCorrect){
+    pattern.locked = true;
+    btn.classList.add('correct');
+    pattern.correctCount++;
+    setTimeout(()=>{
+      if(pattern.idx < patternData.length-1){
+        pattern.idx++;
+        renderPatternRound();
+      } else {
+        awardStar('pattern');
+        showModal(`أكملت الأنماط جميعها بشكل صحيح 🧩`, initPattern);
+      }
+    }, 500);
+  } else {
+    btn.classList.add('incorrect');
+    setTimeout(()=>btn.classList.remove('incorrect'), 400);
+  }
+}
+</script>
+</body>
+</html>
